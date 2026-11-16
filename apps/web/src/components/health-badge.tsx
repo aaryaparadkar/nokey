@@ -1,20 +1,14 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
-
-type Status = "checking" | "ok" | "down";
+import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/query";
 
 export function HealthBadge() {
-  const [status, setStatus] = useState<Status>("checking");
-  useEffect(() => {
-    const ctrl = new AbortController();
-    fetch("/api/health", { signal: ctrl.signal })
-      .then((r) => r.json() as Promise<{ ok?: boolean }>)
-      .then((d) => setStatus(d.ok ? "ok" : "down"))
-      .catch((e: unknown) => {
-        if (!(e instanceof DOMException && e.name === "AbortError")) setStatus("down");
-      });
-    return () => ctrl.abort();
-  }, []);
+  const { data, isPending, isError } = useQuery({
+    queryKey: queryKeys.health,
+    queryFn: ({ signal }) => api.health(signal),
+  });
+  const status = isPending ? "checking" : isError || !data.ok ? "down" : "ok";
   const variant = status === "ok" ? "default" : status === "down" ? "destructive" : "secondary";
   return <Badge variant={variant}>API: {status}</Badge>;
 }
