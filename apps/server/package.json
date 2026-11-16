@@ -2,5 +2,14 @@
   "name": "@nokey/server",
   "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "hono": "^4.13.18",
+    "zod": "^4.6.7"
+  }
 }
