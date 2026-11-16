@@ -16,7 +16,9 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "check:fix": "biome check --write .",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "db:generate": "bun run --filter @nokey/server db:generate",
+    "db:migrate": "bun run --filter @nokey/server db:migrate"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",

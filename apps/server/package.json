@@ -6,11 +6,18 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun src/db/migrate.ts",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@nokey/shared": "workspace:*",
+    "drizzle-orm": "^0.45.4",
     "hono": "^4.13.18",
-    "zod": "^4.6.7",
-    "@nokey/shared": "workspace:*"
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.11"
   }
 }

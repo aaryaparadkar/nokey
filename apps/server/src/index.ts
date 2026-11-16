@@ -1,5 +1,9 @@
 import { createApp } from "./app";
+import { createDb, runMigrations } from "./db/client";
 import { env } from "./env";
+
+const db = createDb(env.DATABASE_PATH);
+runMigrations(db);
 
 const app = createApp();
 
