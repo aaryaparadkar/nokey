@@ -8,6 +8,7 @@ const STATUS_CODES: Record<number, ErrorCode> = {
   401: "unauthorized",
   403: "forbidden",
   404: "not_found",
+  409: "conflict",
   429: "rate_limited",
 };
 

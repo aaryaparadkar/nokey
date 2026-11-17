@@ -12,7 +12,9 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.9.1",
     "@nokey/shared": "workspace:*",
+    "@simplewebauthn/server": "^14.1.0",
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.18",
     "zod": "^4.6.7"

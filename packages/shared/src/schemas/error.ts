@@ -5,6 +5,7 @@ export const ErrorCode = z.enum([
   "unauthorized",
   "forbidden",
   "not_found",
+  "conflict",
   "rate_limited",
   "internal_error",
   "error",

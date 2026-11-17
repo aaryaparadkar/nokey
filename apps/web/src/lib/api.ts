@@ -1,4 +1,12 @@
-import { ApiErrorBody, type ErrorCode, HealthResponse } from "@nokey/shared";
+import {
+  ApiErrorBody,
+  CreationOptionsJSON,
+  type ErrorCode,
+  HealthResponse,
+  type RegisterOptionsRequest,
+  type RegisterVerifyRequest,
+  RegisterVerifyResponse,
+} from "@nokey/shared";
 import type { z } from "zod";
 
 export class ApiError extends Error {
@@ -53,4 +61,8 @@ export async function request<S extends z.ZodType>(
 
 export const api = {
   health: (signal?: AbortSignal) => request("/api/health", HealthResponse, { signal }),
+  registerOptions: (body: RegisterOptionsRequest) =>
+    request("/api/auth/register/options", CreationOptionsJSON, { method: "POST", body }),
+  registerVerify: (body: RegisterVerifyRequest) =>
+    request("/api/auth/register/verify", RegisterVerifyResponse, { method: "POST", body }),
 };

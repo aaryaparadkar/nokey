@@ -10,7 +10,7 @@ runMigrations(db);
 
 setInterval(() => sweepExpiredChallenges(db), 60_000).unref();
 
-const app = createApp();
+const app = createApp({ db, rp, secureCookies: env.NODE_ENV === "production" });
 
 console.log(`nokey server listening on http://localhost:${env.PORT} (RP ID: ${rp.id})`);
 

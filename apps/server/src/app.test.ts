@@ -1,7 +1,20 @@
 import { describe, expect, test } from "bun:test";
 import { createApp } from "./app";
+import { createTestDb } from "./db/test-utils";
+import { createRelyingParty } from "./webauthn/config";
 
-const app = createApp({ log: false });
+const app = createApp(
+  {
+    db: createTestDb(),
+    rp: createRelyingParty({
+      RP_ID: "localhost",
+      RP_NAME: "nokey",
+      ORIGIN: "http://localhost:5173",
+    }),
+    secureCookies: false,
+  },
+  { log: false },
+);
 
 describe("app", () => {
   test("GET /api/health returns ok", async () => {
