@@ -38,3 +38,9 @@ export type RegisterVerifyRequest = z.infer<typeof RegisterVerifyRequest>;
 
 export const RegisterVerifyResponse = z.object({ user: PublicUser });
 export type RegisterVerifyResponse = z.infer<typeof RegisterVerifyResponse>;
+
+export const MeResponse = z.object({ user: PublicUser });
+export type MeResponse = z.infer<typeof MeResponse>;
+
+export const OkResponse = z.object({ ok: z.literal(true) });
+export type OkResponse = z.infer<typeof OkResponse>;

@@ -12,6 +12,7 @@ const app = createApp(
       ORIGIN: "http://localhost:5173",
     }),
     secureCookies: false,
+    sessionSecret: "test-secret-test-secret-test-secret",
   },
   { log: false },
 );

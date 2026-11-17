@@ -15,4 +15,5 @@ export const queryClient = new QueryClient({
 
 export const queryKeys = {
   health: ["health"] as const,
+  session: ["session"] as const,
 };

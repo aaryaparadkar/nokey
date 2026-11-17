@@ -3,6 +3,8 @@ import {
   CreationOptionsJSON,
   type ErrorCode,
   HealthResponse,
+  MeResponse,
+  OkResponse,
   type RegisterOptionsRequest,
   type RegisterVerifyRequest,
   RegisterVerifyResponse,
@@ -65,4 +67,14 @@ export const api = {
     request("/api/auth/register/options", CreationOptionsJSON, { method: "POST", body }),
   registerVerify: (body: RegisterVerifyRequest) =>
     request("/api/auth/register/verify", RegisterVerifyResponse, { method: "POST", body }),
+  /** Current user, or null when signed out. */
+  me: async (signal?: AbortSignal) => {
+    try {
+      return (await request("/api/me", MeResponse, { signal })).user;
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 401) return null;
+      throw e;
+    }
+  },
+  logout: () => request("/api/auth/logout", OkResponse, { method: "POST" }),
 };

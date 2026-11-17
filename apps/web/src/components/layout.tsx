@@ -1,7 +1,7 @@
 import { FingerprintIcon } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
+import { UserMenu } from "@/components/user-menu";
 import { cn } from "@/lib/utils";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -28,10 +28,7 @@ export function Layout() {
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />
-            {/* Auth slot: replaced by session-aware button in Phase 11 */}
-            <Button asChild size="sm">
-              <Link to="/login">Sign in</Link>
-            </Button>
+            <UserMenu />
           </div>
         </div>
       </header>

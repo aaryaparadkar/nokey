@@ -1,4 +1,5 @@
 import {
+  type OkResponse,
   RegisterOptionsRequest,
   RegisterVerifyRequest,
   type RegisterVerifyResponse,
@@ -8,6 +9,7 @@ import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "../context";
+import { endSession, startSession } from "../lib/session-cookie";
 import { validate } from "../lib/validate";
 import { CHALLENGE_TTL_MS, consumeChallenge } from "../webauthn/challenges";
 import { beginRegistration, finishRegistration } from "../webauthn/registration";
@@ -51,5 +53,10 @@ export const auth = new Hono<AppEnv>()
         message: result.message,
       });
     }
+    await startSession(c, result.user.id);
     return c.json<RegisterVerifyResponse>({ user: result.user }, 201);
+  })
+  .post("/logout", async (c) => {
+    await endSession(c);
+    return c.json<OkResponse>({ ok: true });
   });

@@ -15,12 +15,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { UnsupportedNotice } from "@/components/unsupported-notice";
+import { useSetSessionUser } from "@/hooks/use-session";
 import { type PasskeyError, registerPasskey, supportsPasskeys } from "@/lib/passkey";
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const [handle, setHandle] = useState("");
   const [supported] = useState(supportsPasskeys);
+  const setSessionUser = useSetSessionUser();
 
   const trimmed = handle.trim();
   const handleError = trimmed ? Handle.safeParse(trimmed).error?.issues[0]?.message : undefined;
@@ -28,6 +30,7 @@ export function RegisterPage() {
   const register = useMutation<Awaited<ReturnType<typeof registerPasskey>>, PasskeyError>({
     mutationFn: () => registerPasskey(trimmed || undefined),
     onSuccess: (user) => {
+      setSessionUser(user);
       toast.success(user.handle ? `Welcome, ${user.handle}!` : "Passkey created!");
       navigate("/");
     },
