@@ -44,3 +44,23 @@ export type MeResponse = z.infer<typeof MeResponse>;
 
 export const OkResponse = z.object({ ok: z.literal(true) });
 export type OkResponse = z.infer<typeof OkResponse>;
+
+export const RequestOptionsJSON = z.looseObject({ challenge: z.string() });
+
+export const AuthenticationResponseJSON = z.looseObject({
+  id: z.string(),
+  rawId: z.string(),
+  type: z.literal("public-key"),
+  response: z.looseObject({
+    clientDataJSON: z.string(),
+    authenticatorData: z.string(),
+    signature: z.string(),
+    userHandle: z.string().optional(),
+  }),
+});
+
+export const LoginVerifyRequest = z.object({ response: AuthenticationResponseJSON });
+export type LoginVerifyRequest = z.infer<typeof LoginVerifyRequest>;
+
+export const LoginVerifyResponse = z.object({ user: PublicUser });
+export type LoginVerifyResponse = z.infer<typeof LoginVerifyResponse>;

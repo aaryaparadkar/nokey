@@ -1,8 +1,10 @@
-import type { PublicUser, RegisterVerifyRequest } from "@nokey/shared";
+import type { LoginVerifyRequest, PublicUser, RegisterVerifyRequest } from "@nokey/shared";
 import {
   browserSupportsWebAuthn,
   type PublicKeyCredentialCreationOptionsJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
   platformAuthenticatorIsAvailable,
+  startAuthentication,
   startRegistration,
   WebAuthnError,
 } from "@simplewebauthn/browser";
@@ -15,7 +17,13 @@ export const hasPlatformAuthenticator = () => platformAuthenticatorIsAvailable()
 export class PasskeyError extends Error {
   constructor(
     message: string,
-    readonly kind: "cancelled" | "unsupported" | "already_registered" | "server" | "unknown",
+    readonly kind:
+      | "cancelled"
+      | "unsupported"
+      | "already_registered"
+      | "not_recognized"
+      | "server"
+      | "unknown",
   ) {
     super(message);
     this.name = "PasskeyError";
@@ -26,7 +34,9 @@ export class PasskeyError extends Error {
 export function toPasskeyError(e: unknown): PasskeyError {
   if (e instanceof PasskeyError) return e;
   if (e instanceof ApiError) {
-    return new PasskeyError(e.message, e.code === "conflict" ? "already_registered" : "server");
+    if (e.code === "conflict") return new PasskeyError(e.message, "already_registered");
+    if (e.status === 401) return new PasskeyError(e.message, "not_recognized");
+    return new PasskeyError(e.message, "server");
   }
   if (e instanceof WebAuthnError) {
     switch (e.code) {
@@ -56,7 +66,7 @@ export function toPasskeyError(e: unknown): PasskeyError {
       return new PasskeyError("Your browser or device doesn't support passkeys.", "unsupported");
     }
   }
-  return new PasskeyError("Something went wrong creating your passkey.", "unknown");
+  return new PasskeyError("Something went wrong with your passkey.", "unknown");
 }
 
 /** Full registration ceremony: options → authenticator → verify. */
@@ -72,6 +82,25 @@ export async function registerPasskey(handle?: string): Promise<PublicUser> {
     const { user } = await api.registerVerify({
       handle,
       response: response as unknown as RegisterVerifyRequest["response"],
+    });
+    return user;
+  } catch (e) {
+    throw toPasskeyError(e);
+  }
+}
+
+/** Full usernameless sign-in ceremony: options → pick passkey → verify. */
+export async function signInWithPasskey(): Promise<PublicUser> {
+  if (!supportsPasskeys()) {
+    throw new PasskeyError("Your browser doesn't support passkeys.", "unsupported");
+  }
+  try {
+    const options = await api.loginOptions();
+    const response = await startAuthentication({
+      optionsJSON: options as unknown as PublicKeyCredentialRequestOptionsJSON,
+    });
+    const { user } = await api.loginVerify({
+      response: response as unknown as LoginVerifyRequest["response"],
     });
     return user;
   } catch (e) {

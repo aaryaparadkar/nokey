@@ -3,11 +3,14 @@ import {
   CreationOptionsJSON,
   type ErrorCode,
   HealthResponse,
+  type LoginVerifyRequest,
+  LoginVerifyResponse,
   MeResponse,
   OkResponse,
   type RegisterOptionsRequest,
   type RegisterVerifyRequest,
   RegisterVerifyResponse,
+  RequestOptionsJSON,
 } from "@nokey/shared";
 import type { z } from "zod";
 
@@ -67,6 +70,9 @@ export const api = {
     request("/api/auth/register/options", CreationOptionsJSON, { method: "POST", body }),
   registerVerify: (body: RegisterVerifyRequest) =>
     request("/api/auth/register/verify", RegisterVerifyResponse, { method: "POST", body }),
+  loginOptions: () => request("/api/auth/login/options", RequestOptionsJSON, { method: "POST" }),
+  loginVerify: (body: LoginVerifyRequest) =>
+    request("/api/auth/login/verify", LoginVerifyResponse, { method: "POST", body }),
   /** Current user, or null when signed out. */
   me: async (signal?: AbortSignal) => {
     try {
