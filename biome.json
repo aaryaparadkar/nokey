@@ -7,7 +7,15 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!**/drizzle"]
+    "includes": [
+      "**",
+      "!**/drizzle",
+      "!**/.agents",
+      "!**/.claude",
+      "!apps/web/src/components/sodium",
+      "!apps/web/src/lib/sodium",
+      "!apps/web/sodium.eslint.config.mjs"
+    ]
   },
   "formatter": {
     "enabled": true,

@@ -1,18 +1,18 @@
 import type { PublicUser } from "@nokey/shared";
 import { useMutation } from "@tanstack/react-query";
-import { FingerprintIcon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Fingerprint, Icon } from "@/components/sodium/icon";
+import { Button } from "@/components/sodium/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Frame,
+  FrameBody,
+  FrameDescription,
+  FrameFooter,
+  FrameHeader,
+  FrameTitle,
+} from "@/components/sodium/ui/frame";
+import { toast } from "@/components/sodium/ui/toast";
 import { UnsupportedNotice } from "@/components/unsupported-notice";
 import { useSession, useSetSessionUser } from "@/hooks/use-session";
 import { type PasskeyError, signInWithPasskey, supportsPasskeys } from "@/lib/passkey";
@@ -42,23 +42,24 @@ export function LoginPage() {
 
   const err = signIn.error;
   return (
-    <div className="mx-auto max-w-sm py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>
+    <div className="mx-auto max-w-96 space-y-4 py-8">
+      <h1 className="type-title">Sign in</h1>
+      <Frame aria-label="Sign in with a passkey">
+        <FrameHeader>
+          <FrameTitle>Passkey</FrameTitle>
+        </FrameHeader>
+        <FrameBody className="space-y-4">
+          <FrameDescription>
             Use the passkey you created on this device, your phone or your password manager.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </FrameDescription>
           {!supported && <UnsupportedNotice />}
           {err && (
             <p
               role={err.kind === "cancelled" ? undefined : "alert"}
               className={
                 err.kind === "cancelled"
-                  ? "text-sm text-muted-foreground"
-                  : "text-sm text-destructive"
+                  ? "type-body-sm text-text-2"
+                  : "type-body-sm text-fail-text"
               }
             >
               {err.message}
@@ -74,24 +75,25 @@ export function LoginPage() {
               )}
             </p>
           )}
-        </CardContent>
-        <CardFooter className="flex-col gap-3">
           <Button
             className="w-full"
             onClick={() => signIn.mutate()}
-            disabled={!supported || signIn.isPending}
+            disabled={!supported}
+            pending={signIn.isPending}
+            pendingLabel="Waiting for your passkey"
           >
-            {signIn.isPending ? <Loader2Icon className="animate-spin" /> : <FingerprintIcon />}
-            {signIn.isPending ? "Waiting for your passkey…" : "Sign in with passkey"}
+            <Icon icon={Fingerprint} /> Sign in with passkey
           </Button>
-          <p className="text-sm text-muted-foreground">
+        </FrameBody>
+        <FrameFooter>
+          <p className="type-body-sm text-text-2">
             New here?{" "}
-            <Link to="/register" className="text-foreground underline underline-offset-4">
+            <Link to="/register" className="text-text-1 underline underline-offset-4">
               Create an account
             </Link>
           </p>
-        </CardFooter>
-      </Card>
+        </FrameFooter>
+      </Frame>
     </div>
   );
 }

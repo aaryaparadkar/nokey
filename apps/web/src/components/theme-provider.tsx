@@ -36,6 +36,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+    document.documentElement.dataset.theme = resolvedTheme;
   }, [resolvedTheme]);
 
   const setTheme = useCallback((t: Theme) => {

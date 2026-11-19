@@ -1,15 +1,16 @@
-import { KeyRoundIcon, LogOutIcon, UserIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Icon, Key, Logout, User } from "@/components/sodium/icon";
+import { Button } from "@/components/sodium/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuLinkItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/sodium/ui/dropdown-menu";
+import { toast } from "@/components/sodium/ui/toast";
 import { useLogout, useSession } from "@/hooks/use-session";
 
 export function UserMenu() {
@@ -21,8 +22,8 @@ export function UserMenu() {
 
   if (!user) {
     return (
-      <Button asChild size="sm">
-        <Link to="/login">Sign in</Link>
+      <Button size="sm" render={<Link to="/login" />} nativeButton={false}>
+        Sign in
       </Button>
     );
   }
@@ -30,31 +31,27 @@ export function UserMenu() {
   const name = user.handle ?? "Anonymous";
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          <UserIcon /> <span className="max-w-32 truncate">{name}</span>
-        </Button>
+      <DropdownMenuTrigger render={<Button variant="secondary" size="sm" />}>
+        <Icon icon={User} /> <span className="max-w-32 truncate">{name}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end">
         <DropdownMenuLabel className="truncate">{name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link to="/account">
-            <KeyRoundIcon /> Passkeys & account
-          </Link>
-        </DropdownMenuItem>
+        <DropdownMenuLinkItem render={<Link to="/account" />}>
+          <Icon icon={Key} /> Manage passkeys
+        </DropdownMenuLinkItem>
         <DropdownMenuItem
-          onSelect={() =>
+          onClick={() =>
             logout.mutate(undefined, {
               onSuccess: () => {
                 toast("Signed out");
                 navigate("/");
               },
-              onError: () => toast.error("Couldn't sign out. Please try again."),
+              onError: () => toast.fail("Sign out failed", { description: "Try again." }),
             })
           }
         >
-          <LogOutIcon /> Sign out
+          <Icon icon={Logout} /> Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

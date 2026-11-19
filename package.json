@@ -18,7 +18,8 @@
     "check:fix": "biome check --write .",
     "typecheck": "tsc -b",
     "db:generate": "bun run --filter @nokey/server db:generate",
-    "db:migrate": "bun run --filter @nokey/server db:migrate"
+    "db:migrate": "bun run --filter @nokey/server db:migrate",
+    "lint:sodium": "bun run --filter @nokey/web lint:sodium"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",

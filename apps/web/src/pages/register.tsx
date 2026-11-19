@@ -1,19 +1,20 @@
 import { Handle } from "@nokey/shared";
 import { useMutation } from "@tanstack/react-query";
-import { FingerprintIcon, Loader2Icon } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Fingerprint, Icon } from "@/components/sodium/icon";
+import { Button } from "@/components/sodium/ui/button";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/sodium/ui/field";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+  Frame,
+  FrameBody,
+  FrameDescription,
+  FrameFooter,
+  FrameHeader,
+  FrameTitle,
+} from "@/components/sodium/ui/frame";
+import { Input } from "@/components/sodium/ui/input";
+import { toast } from "@/components/sodium/ui/toast";
 import { UnsupportedNotice } from "@/components/unsupported-notice";
 import { useSetSessionUser } from "@/hooks/use-session";
 import { type PasskeyError, registerPasskey, supportsPasskeys } from "@/lib/passkey";
@@ -31,7 +32,7 @@ export function RegisterPage() {
     mutationFn: () => registerPasskey(trimmed || undefined),
     onSuccess: (user) => {
       setSessionUser(user);
-      toast.success(user.handle ? `Welcome, ${user.handle}!` : "Passkey created!");
+      toast.success(user.handle ? `Welcome, ${user.handle}` : "Passkey created");
       navigate("/");
     },
   });
@@ -42,63 +43,64 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="mx-auto max-w-sm py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Create your account</CardTitle>
-          <CardDescription>
-            No email, no password. Your device stores a passkey and unlocks it with your
-            fingerprint, face or PIN.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={onSubmit}>
-          <CardContent className="space-y-4">
+    <div className="mx-auto max-w-96 space-y-4 py-8">
+      <h1 className="type-title">Create your account</h1>
+      <form onSubmit={onSubmit}>
+        <Frame aria-label="Create a passkey">
+          <FrameHeader>
+            <FrameTitle>Passkey</FrameTitle>
+          </FrameHeader>
+          <FrameBody className="space-y-4">
+            <FrameDescription>
+              No email, no password. Your device stores a passkey and unlocks it with your
+              fingerprint, face or PIN.
+            </FrameDescription>
             {!supported && <UnsupportedNotice />}
-            <div className="space-y-2">
-              <label htmlFor="handle" className="text-sm font-medium">
-                Display name <span className="text-muted-foreground">(optional)</span>
-              </label>
+            <Field invalid={!!handleError} disabled={register.isPending}>
+              <FieldLabel optional>Display name</FieldLabel>
               <Input
-                id="handle"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
-                placeholder="e.g. alice"
+                placeholder="alice"
                 maxLength={32}
                 autoComplete="off"
-                aria-invalid={!!handleError}
-                disabled={register.isPending}
               />
-              <p className="text-xs text-muted-foreground">
-                {handleError ?? "Shown in your passkey manager so you can tell accounts apart."}
-              </p>
-            </div>
+              {handleError ? (
+                <FieldError match>{handleError}</FieldError>
+              ) : (
+                <FieldDescription>
+                  Shown in your passkey manager so you can tell accounts apart.
+                </FieldDescription>
+              )}
+            </Field>
             {register.error && register.error.kind !== "cancelled" && (
-              <p role="alert" className="text-sm text-destructive">
+              <p role="alert" className="type-body-sm text-fail-text">
                 {register.error.message}
               </p>
             )}
             {register.error?.kind === "cancelled" && (
-              <p className="text-sm text-muted-foreground">{register.error.message}</p>
+              <p className="type-body-sm text-text-2">{register.error.message}</p>
             )}
-          </CardContent>
-          <CardFooter className="mt-6 flex-col gap-3">
             <Button
               type="submit"
               className="w-full"
-              disabled={!supported || !!handleError || register.isPending}
+              disabled={!supported || !!handleError}
+              pending={register.isPending}
+              pendingLabel="Waiting for your passkey"
             >
-              {register.isPending ? <Loader2Icon className="animate-spin" /> : <FingerprintIcon />}
-              {register.isPending ? "Waiting for your passkey…" : "Create passkey"}
+              <Icon icon={Fingerprint} /> Create passkey
             </Button>
-            <p className="text-sm text-muted-foreground">
+          </FrameBody>
+          <FrameFooter>
+            <p className="type-body-sm text-text-2">
               Already have one?{" "}
-              <Link to="/login" className="text-foreground underline underline-offset-4">
+              <Link to="/login" className="text-text-1 underline underline-offset-4">
                 Sign in
               </Link>
             </p>
-          </CardFooter>
-        </form>
-      </Card>
+          </FrameFooter>
+        </Frame>
+      </form>
     </div>
   );
 }

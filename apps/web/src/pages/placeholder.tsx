@@ -1,14 +1,25 @@
 import type { ReactNode } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Frame,
+  FrameBody,
+  FrameDescription,
+  FrameHeader,
+  FrameTitle,
+} from "@/components/sodium/ui/frame";
 
 export function Placeholder({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>Coming soon.</CardDescription>
-      </CardHeader>
-      {children && <CardContent>{children}</CardContent>}
-    </Card>
+    <div className="space-y-4">
+      <h1 className="type-title">{title}</h1>
+      <Frame>
+        <FrameHeader>
+          <FrameTitle>{title}</FrameTitle>
+        </FrameHeader>
+        <FrameBody>
+          <FrameDescription>Coming soon.</FrameDescription>
+          {children}
+        </FrameBody>
+      </Frame>
+    </div>
   );
 }

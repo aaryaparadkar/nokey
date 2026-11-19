@@ -1,13 +1,30 @@
 import { Link } from "react-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/sodium/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyIcon,
+  EmptyTitle,
+} from "@/components/sodium/ui/empty-state";
 
 export function NotFoundPage() {
   return (
-    <div className="space-y-4 py-16 text-center">
-      <h1 className="text-2xl font-semibold">Not found</h1>
-      <Button asChild variant="outline">
-        <Link to="/">Go home</Link>
-      </Button>
+    <div className="py-16">
+      <h1 className="sr-only">Not found</h1>
+      <Empty reason="no-results">
+        <EmptyIcon />
+        <EmptyHeader>
+          <EmptyTitle>No page at this address</EmptyTitle>
+          <EmptyDescription>The link may be mistyped, or the page was removed.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button variant="secondary" render={<Link to="/" />} nativeButton={false}>
+            Go home
+          </Button>
+        </EmptyContent>
+      </Empty>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Badge } from "@/components/ui/badge";
+import { Tag } from "@/components/sodium/ui/tag";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query";
 
@@ -8,7 +8,7 @@ export function HealthBadge() {
     queryKey: queryKeys.health,
     queryFn: ({ signal }) => api.health(signal),
   });
-  const status = isPending ? "checking" : isError || !data.ok ? "down" : "ok";
-  const variant = status === "ok" ? "default" : status === "down" ? "destructive" : "secondary";
-  return <Badge variant={variant}>API: {status}</Badge>;
+  if (isPending) return <Tag variant="outline">API checking</Tag>;
+  if (isError || !data.ok) return <Tag variant="fail">API down</Tag>;
+  return <Tag variant="ok">API ok</Tag>;
 }

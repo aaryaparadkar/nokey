@@ -1,34 +1,33 @@
-import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
-import { type Theme, useTheme } from "@/components/theme-provider";
-import { Button } from "@/components/ui/button";
+import { Icon, Monitor, Moon, Sun } from "@/components/sodium/icon";
+import { Button } from "@/components/sodium/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/sodium/ui/dropdown-menu";
+import { type Theme, useTheme } from "@/components/theme-provider";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Toggle theme">
-          <SunIcon className="dark:hidden" />
-          <MoonIcon className="hidden dark:block" />
-        </Button>
+      <DropdownMenuTrigger
+        render={<Button variant="ghost" size="icon" aria-label="Change theme" />}
+      >
+        <Icon icon={resolvedTheme === "dark" ? Moon : Sun} />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuRadioGroup value={theme} onValueChange={(v) => setTheme(v as Theme)}>
           <DropdownMenuRadioItem value="light">
-            <SunIcon /> Light
+            <Icon icon={Sun} /> Light
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="dark">
-            <MoonIcon /> Dark
+            <Icon icon={Moon} /> Dark
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system">
-            <MonitorIcon /> System
+            <Icon icon={Monitor} /> System
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
