@@ -17,7 +17,7 @@ export function Layout() {
             <span className="max-sm:sr-only">nokey</span>
           </Link>
           <nav className="flex items-center gap-3 sm:gap-4">
-            <NavLink to="/" end className={navClass}>
+            <NavLink to="/new" className={navClass}>
               New paste
             </NavLink>
             <NavLink to="/me" className={navClass}>

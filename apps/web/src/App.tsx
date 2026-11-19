@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 import { Layout } from "@/components/layout";
 import { HomePage } from "@/pages/home";
+import { LandingPage } from "@/pages/landing";
 import { LoginPage } from "@/pages/login";
 import { NotFoundPage } from "@/pages/not-found";
 import { PastePage } from "@/pages/paste";
@@ -11,7 +12,8 @@ export function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<HomePage />} />
+        <Route index element={<LandingPage />} />
+        <Route path="new" element={<HomePage />} />
         <Route path="p/:id" element={<PastePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
