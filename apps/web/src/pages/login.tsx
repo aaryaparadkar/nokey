@@ -1,9 +1,10 @@
 import type { PublicUser } from "@nokey/shared";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
 import { Fingerprint, Icon } from "@/components/sodium/icon";
 import { Button } from "@/components/sodium/ui/button";
+import { Field, FieldDescription, FieldLabel } from "@/components/sodium/ui/field";
 import {
   Frame,
   FrameBody,
@@ -12,10 +13,17 @@ import {
   FrameHeader,
   FrameTitle,
 } from "@/components/sodium/ui/frame";
+import { Input } from "@/components/sodium/ui/input";
 import { toast } from "@/components/sodium/ui/toast";
 import { UnsupportedNotice } from "@/components/unsupported-notice";
 import { useSession, useSetSessionUser } from "@/hooks/use-session";
-import { type PasskeyError, signInWithPasskey, supportsPasskeys } from "@/lib/passkey";
+import {
+  armPasskeyAutofill,
+  cancelPasskeyCeremony,
+  type PasskeyError,
+  signInWithPasskey,
+  supportsPasskeys,
+} from "@/lib/passkey";
 
 /** Only follow same-app paths, never absolute URLs (open-redirect guard). */
 const safeNext = (v: unknown) =>
@@ -29,18 +37,40 @@ export function LoginPage() {
   const setSessionUser = useSetSessionUser();
   const [supported] = useState(supportsPasskeys);
 
+  const onSignedIn = (u: PublicUser) => {
+    setSessionUser(u);
+    toast.success(u.handle ? `Welcome back, ${u.handle}` : "Signed in");
+    navigate(next, { replace: true });
+  };
+
   const signIn = useMutation<PublicUser, PasskeyError>({
     mutationFn: signInWithPasskey,
-    onSuccess: (u) => {
-      setSessionUser(u);
-      toast.success(u.handle ? `Welcome back, ${u.handle}` : "Signed in");
-      navigate(next, { replace: true });
-    },
+    onSuccess: onSignedIn,
   });
+
+  // Conditional UI: offer passkeys in the field's autofill dropdown.
+  const [autofillError, setAutofillError] = useState<PasskeyError | null>(null);
+  const [autofillPending, setAutofillPending] = useState(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: arm once per mount
+  useEffect(() => {
+    if (!supported || user) return;
+    let live = true;
+    armPasskeyAutofill()
+      .then((u) => {
+        if (live && u) onSignedIn(u);
+      })
+      .catch((e: PasskeyError) => live && setAutofillError(e))
+      .finally(() => live && setAutofillPending(false));
+    setAutofillPending(true);
+    return () => {
+      live = false;
+      cancelPasskeyCeremony();
+    };
+  }, [supported]);
 
   if (user && !signIn.isPending && !signIn.isSuccess) return <Navigate to={next} replace />;
 
-  const err = signIn.error;
+  const err = signIn.error ?? autofillError;
   return (
     <div className="mx-auto max-w-96 space-y-4 py-8">
       <h1 className="type-title">Sign in</h1>
@@ -53,6 +83,21 @@ export function LoginPage() {
             Use the passkey you created on this device, your phone or your password manager.
           </FrameDescription>
           {!supported && <UnsupportedNotice />}
+          {supported && (
+            <Field>
+              <FieldLabel optional>Account</FieldLabel>
+              {/* "webauthn" in autocomplete is what lets the browser list passkeys here. */}
+              <Input
+                name="username"
+                autoComplete="username webauthn"
+                placeholder="Choose a passkey"
+                aria-busy={autofillPending || undefined}
+              />
+              <FieldDescription>
+                Focus the field to pick a saved passkey, or use the button.
+              </FieldDescription>
+            </Field>
+          )}
           {err && (
             <p
               role={err.kind === "cancelled" ? undefined : "alert"}

@@ -1,11 +1,14 @@
-import { createApp } from "../app";
+import { type CreateAppOptions, createApp } from "../app";
 import { createTestDb } from "../db/test-utils";
 import { createRelyingParty } from "../webauthn/config";
 
 export const TEST_ORIGIN = "http://localhost:5173";
 
 /** App wired to a fresh in-memory DB, plus a tiny cookie-jar client. */
-export function createTestApp() {
+export function createTestApp({
+  trustProxy = false,
+  authRateLimit = false,
+}: { trustProxy?: boolean } & Pick<CreateAppOptions, "authRateLimit"> = {}) {
   const db = createTestDb();
   const app = createApp(
     {
@@ -13,8 +16,9 @@ export function createTestApp() {
       rp: createRelyingParty({ RP_ID: "localhost", RP_NAME: "nokey", ORIGIN: TEST_ORIGIN }),
       secureCookies: false,
       sessionSecret: "test-secret-test-secret-test-secret",
+      trustProxy,
     },
-    { log: false },
+    { log: false, authRateLimit },
   );
 
   const jar = new Map<string, string>();

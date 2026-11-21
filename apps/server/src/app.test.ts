@@ -13,6 +13,7 @@ const app = createApp(
     }),
     secureCookies: false,
     sessionSecret: "test-secret-test-secret-test-secret",
+    trustProxy: false,
   },
   { log: false },
 );

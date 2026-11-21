@@ -129,6 +129,35 @@ With `mediation: "conditional"`, passkeys show up in the browser's autofill
 dropdown on an `<input autocomplete="username webauthn">`. That's the sign-in
 flow most people already know from passwords, minus the password.
 
+## Signing in from another device (cross-device / hybrid)
+
+Passkeys don't have to live on the computer you're using. If the laptop has no
+nokey passkey, the browser's passkey dialog offers **"Use a phone or tablet"**
+and shows a QR code:
+
+1. Scan it with the phone's camera. The phone finds the passkey and asks for
+   your fingerprint or face.
+2. The phone and the laptop check they're physically close over **Bluetooth**.
+   This is what stops a remote attacker from relaying the QR code.
+3. The phone signs the challenge. The result travels back to the laptop's browser
+   through an encrypted relay (caBLE / hybrid transport), and the browser posts it
+   to nokey like any other sign-in.
+
+Nothing changes on the server: the origin in `clientDataJSON` is still the
+laptop's page, so phishing protection holds. Requirements: Bluetooth on both
+devices, and a phone with a passkey manager (iOS 16+, Android 9+ with Google
+Password Manager, or a third-party manager).
+
+Registering this way works too. The passkey is then saved on the phone, which
+the account page shows as `hybrid` in the passkey's transports.
+
+## Abuse protection
+
+The sign-in endpoints are rate-limited per IP with a token bucket: 20 requests
+back to back, then one every 3 seconds (`middleware/rate-limit.ts`). Behind a
+reverse proxy set `TRUST_PROXY=true` so the real client IP is read from
+`X-Forwarded-For`; without it the header is ignored, so it can't be spoofed.
+
 ## Where to look in the code
 
 | Concept                   | File                                           |

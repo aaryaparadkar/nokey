@@ -1,17 +1,21 @@
 import type { LoginVerifyRequest, PublicUser, RegisterVerifyRequest } from "@nokey/shared";
 import {
   browserSupportsWebAuthn,
+  browserSupportsWebAuthnAutofill,
   type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
   platformAuthenticatorIsAvailable,
   startAuthentication,
   startRegistration,
+  WebAuthnAbortService,
   WebAuthnError,
 } from "@simplewebauthn/browser";
 import { ApiError, api } from "./api";
 
 export const supportsPasskeys = () => browserSupportsWebAuthn();
 export const hasPlatformAuthenticator = () => platformAuthenticatorIsAvailable();
+export const supportsPasskeyAutofill = () =>
+  supportsPasskeys() ? browserSupportsWebAuthnAutofill() : Promise.resolve(false);
 
 /** Thrown for errors we want to show to the user as-is. */
 export class PasskeyError extends Error {
@@ -89,15 +93,17 @@ export async function registerPasskey(handle?: string): Promise<PublicUser> {
   }
 }
 
-/** Full usernameless sign-in ceremony: options → pick passkey → verify. */
-export async function signInWithPasskey(): Promise<PublicUser> {
+async function authenticate(useBrowserAutofill: boolean): Promise<PublicUser> {
   if (!supportsPasskeys()) {
     throw new PasskeyError("Your browser doesn't support passkeys.", "unsupported");
   }
   try {
     const options = await api.loginOptions();
+    // Starting any ceremony aborts the previous one, so clicking the button
+    // while an autofill request is pending simply takes over.
     const response = await startAuthentication({
       optionsJSON: options as unknown as PublicKeyCredentialRequestOptionsJSON,
+      useBrowserAutofill,
     });
     const { user } = await api.loginVerify({
       response: response as unknown as LoginVerifyRequest["response"],
@@ -107,3 +113,25 @@ export async function signInWithPasskey(): Promise<PublicUser> {
     throw toPasskeyError(e);
   }
 }
+
+/** Full usernameless sign-in ceremony: options → pick passkey → verify. */
+export const signInWithPasskey = () => authenticate(false);
+
+/**
+ * Conditional UI: arms a sign-in request that waits silently until the user
+ * picks a passkey from the autofill dropdown of an
+ * `<input autocomplete="username webauthn">`. Resolves with the user, or with
+ * null if it was cancelled (unmount, or the button took over).
+ */
+export async function armPasskeyAutofill(): Promise<PublicUser | null> {
+  if (!(await supportsPasskeyAutofill())) return null;
+  try {
+    return await authenticate(true);
+  } catch (e) {
+    if (e instanceof PasskeyError && e.kind === "cancelled") return null;
+    throw e;
+  }
+}
+
+/** Abort whatever ceremony is pending (e.g. on unmount). */
+export const cancelPasskeyCeremony = () => WebAuthnAbortService.cancelCeremony();

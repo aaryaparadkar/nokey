@@ -11,6 +11,10 @@ const schema = z
     ORIGIN: z.url().default("http://localhost:5173"),
     SESSION_SECRET: z.string().min(32).default(DEV_SECRET),
     DATABASE_PATH: z.string().min(1).default("./data/nokey.db"),
+    TRUST_PROXY: z
+      .enum(["true", "false", "1", "0"])
+      .default("false")
+      .transform((v) => v === "true" || v === "1"),
   })
   .refine((e) => e.NODE_ENV !== "production" || e.SESSION_SECRET !== DEV_SECRET, {
     path: ["SESSION_SECRET"],

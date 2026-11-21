@@ -9,6 +9,8 @@ export type AppDeps = {
   secureCookies: boolean;
   /** HMAC key for signed cookies. */
   sessionSecret: string;
+  /** Read the client IP from X-Forwarded-For (only behind a trusted reverse proxy). */
+  trustProxy: boolean;
 };
 
 export type AppEnv = {

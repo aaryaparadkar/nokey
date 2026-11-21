@@ -19,6 +19,7 @@ const app = createApp({
   rp,
   secureCookies: env.NODE_ENV === "production",
   sessionSecret: env.SESSION_SECRET,
+  trustProxy: env.TRUST_PROXY,
 });
 
 console.log(`nokey server listening on http://localhost:${env.PORT} (RP ID: ${rp.id})`);
